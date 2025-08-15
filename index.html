@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathIt - Math it. Solve it. Own it.</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5B47FB;
+            --primary-dark: #4936E8;
+            --secondary: #00D4AA;
+            --accent: #FFB800;
+            --dark: #1a1a2e;
+            --gray: #64748b;
+            --light: #f8fafc;
+            --gradient: linear-gradient(135deg, #5B47FB 0%, #00D4AA 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #5B47FB08 0%, #00D4AA08 100%);
+            min-height: 100vh;
+        }
+
+        /* Logo and Branding */
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-mark {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 900;
+        }
+
+        .hero .highlight {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero .tagline {
+            font-size: 1.5rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        .verb-examples {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .verb-card {
+            background: white;
+            border: 2px solid var(--light);
+            border-radius: 15px;
+            padding: 1.5rem;
+            width: 200px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .verb-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(91, 71, 251, 0.1);
+        }
+
+        .verb-card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .verb-card .phrase {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .verb-card .context {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(91, 71, 251, 0.3);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Challenge Cards */
+        .challenges-section {
+            margin-top: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .challenge-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .challenge-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient);
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .challenge-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .challenge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .difficulty-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .difficulty-easy {
+            background: #00D4AA20;
+            color: #00A087;
+        }
+
+        .difficulty-medium {
+            background: #FFB80020;
+            color: #CC9200;
+        }
+
+        .difficulty-hard {
+            background: #FF5C5C20;
+            color: #E04444;
+        }
+
+        .challenge-description {
+            color: var(--gray);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            transition: gap 0.3s;
+        }
+
+        .challenge-cta:hover {
+            gap: 1rem;
+        }
+
+        /* Quick Math Section */
+        .quick-math {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .quick-math h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .math-input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .math-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--light);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .math-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 71, 251, 0.1);
+        }
+
+        .math-examples {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .example-chip {
+            padding: 0.5rem 1rem;
+            background: var(--light);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .example-chip:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 2rem;
+            margin-top: 5rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-tagline {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-mark">M!</div>
+                MathIt
+            </div>
+            <div class="nav-links">
+                <a href="#explore">Explore</a>
+                <a href="#educators">For Educators</a>
+                <a href="#students">For Students</a>
+                <a href="#about">About</a>
+                <button class="btn-primary">Start Mathing!</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Don't just learn math. <span class="highlight">Math it!</span></h1>
+        <p class="tagline">Math it. Solve it. Own it.</p>
+        
+        <div class="verb-examples">
+            <div class="verb-card">
+                <div class="icon">💡</div>
+                <div class="phrase">"Just math it!"</div>
+                <div class="context">When facing any problem</div>
+            </div>
+            <div class="verb-card">
+                <div class="icon">🤝</div>
+                <div class="phrase">"Math together"</div>
+                <div class="context">Collaborative solving</div>
+            </div>
+            <div class="verb-card">
+                <div class="icon">💪</div>
+                <div class="phrase">"I mathed it!"</div>
+                <div class="context">Celebrating success</div>
+            </div>
+            <div class="verb-card">
+                <div class="icon">🎯</div>
+                <div class="phrase">"Math this out"</div>
+                <div class="context">Working through challenges</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Quick Math Section -->
+        <div class="quick-math">
+            <h3>🚀 Quick Math - What do you want to math today?</h3>
+            <div class="math-input-group">
+                <input type="text" class="math-input" placeholder="Enter a real-world challenge (e.g., 'calculate loan payments')">
+                <button class="btn-primary">Math It!</button>
+            </div>
+            <div class="math-examples">
+                <div class="example-chip">💰 Compound interest</div>
+                <div class="example-chip">📊 Stock returns</div>
+                <div class="example-chip">🎮 Game probability</div>
+                <div class="example-chip">🏥 Medical test accuracy</div>
+                <div class="example-chip">💳 Credit card debt</div>
+                <div class="example-chip">🗳️ Voting systems</div>
+                <div class="example-chip">📈 Viral growth</div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Students Mathing Daily</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Real-World Challenges</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Schools Mathing</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">95%</div>
+                <div class="stat-label">"Finally Get It" Rate</div>
+            </div>
+        </div>
+
+        <!-- Challenges Section -->
+        <div class="challenges-section">
+            <div class="section-header">
+                <h2>Featured Challenges to Math</h2>
+                <button class="btn-primary">Create Challenge</button>
+            </div>
+
+            <div class="challenge-grid">
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <h3 class="challenge-title">Math Your Money</h3>
+                        <span class="difficulty-badge difficulty-easy">Easy</span>
+                    </div>
+                    <p class="challenge-description">
+                        Math out compound interest, credit cards, and loans. See why that $5 coffee costs $50 in retirement.
+                    </p>
+                    <a href="#" class="challenge-cta">
+                        Math this challenge →
+                    </a>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <h3 class="challenge-title">Math the Odds</h3>
+                        <span class="difficulty-badge difficulty-medium">Medium</span>
+                    </div>
+                    <p class="challenge-description">
+                        From medical tests to lottery tickets - math out real probabilities and never be fooled again.
+                    </p>
+                    <a href="#" class="challenge-cta">
+                        Math this challenge →
+                    </a>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <h3 class="challenge-title">Math Goes Viral</h3>
+                        <span class="difficulty-badge difficulty-medium">Medium</span>
+                    </div>
+                    <p class="challenge-description">
+                        Math how content spreads, diseases transmit, and trends explode. Master exponential growth.
+                    </p>
+                    <a href="#" class="challenge-cta">
+                        Math this challenge →
+                    </a>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <h3 class="challenge-title">Math the Game</h3>
+                        <span class="difficulty-badge difficulty-hard">Hard</span>
+                    </div>
+                    <p class="challenge-description">
+                        Use game theory to math out strategies in sports, business, and life. Win before you play.
+                    </p>
+                    <a href="#" class="challenge-cta">
+                        Math this challenge →
+                    </a>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <h3 class="challenge-title">Math the Algorithm</h3>
+                        <span class="difficulty-badge difficulty-hard">Hard</span>
+                    </div>
+                    <p class="challenge-description">
+                        Understand how AI and algorithms work. Math out bias, recommendations, and decision systems.
+                    </p>
+                    <a href="#" class="challenge-cta">
+                        Math this challenge →
+                    </a>
+                </div>
+
+                <div class="challenge-card">
+                    <div class="challenge-header">
+                        <h3 class="challenge-title">Math Your Future</h3>
+                        <span class="difficulty-badge difficulty-easy">Easy</span>
+                    </div>
+                    <p class="challenge-description">
+                        Career paths, college costs, retirement planning - math out life's biggest decisions with confidence.
+                    </p>
+                    <a href="#" class="challenge-cta">
+                        Math this challenge →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-tagline">Ready to math it?</div>
+            <p style="color: #94a3b8; margin-bottom: 2rem;">
+                Join thousands of students who stopped fearing math and started mathing it.
+            </p>
+            <button class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">
+                Start Mathing - It's Free!
+            </button>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <a href="#">Educators</a>
+                <a href="#">Parents</a>
+                <a href="#">Contact</a>
+                <a href="#">Blog</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Example chip interactions
+        document.querySelectorAll('.example-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                const text = this.textContent.substring(2); // Remove emoji
+                document.querySelector('.math-input').value = text;
+            });
+        });
+
+        // Verb card interactions
+        document.querySelectorAll('.verb-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+
+        // Challenge card hover effects
+        document.querySelectorAll('.challenge-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.querySelector('.challenge-cta').style.gap = '1rem';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.querySelector('.challenge-cta').style.gap = '0.5rem';
+            });
+        });
+
+        // Simple routing simulation
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Navigate to:', this.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
