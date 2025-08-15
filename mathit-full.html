@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathIt! - Math it. Solve it. Own it.</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Math Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5B47FB;
+            --primary-dark: #4936E8;
+            --secondary: #00D4AA;
+            --accent: #FFB800;
+            --success: #10B981;
+            --danger: #EF4444;
+            --dark: #1a1a2e;
+            --gray: #64748b;
+            --light: #f1f5f9;
+            --white: #ffffff;
+            --gradient: linear-gradient(135deg, #5B47FB 0%, #00D4AA 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #5B47FB08 0%, #00D4AA08 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .nav-bar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+        }
+
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gradient);
+        }
+
+        /* Dashboard Sections */
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .stat-change {
+            color: var(--success);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Challenge Builder */
+        .builder-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .builder-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .builder-preview {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-section-title {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Rich Text Editor */
+        .editor-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--light);
+            border-radius: 10px 10px 0 0;
+            flex-wrap: wrap;
+        }
+
+        .editor-btn {
+            padding: 0.5rem;
+            background: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .editor-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .editor-content {
+            min-height: 200px;
+            padding: 1rem;
+            border: 2px solid var(--light);
+            border-radius: 0 0 10px 10px;
+            background: white;
+        }
+
+        /* Challenge Steps */
+        .challenge-steps {
+            margin-top: 1rem;
+        }
+
+        .step-item {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .add-step-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            border: 2px dashed var(--primary);
+            border-radius: 10px;
+            color: var(--primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .add-step-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Student View */
+        .challenge-player {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .challenge-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .challenge-title {
+            font-size: 2rem;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-meta {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: var(--light);
+            height: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+
+        /* Answer Input */
+        .answer-section {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .submit-answer-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .submit-answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(91, 71, 251, 0.3);
+        }
+
+        /* Feedback */
+        .feedback-box {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .feedback-box.correct {
+            background: var(--success);
+            color: white;
+            display: block;
+        }
+
+        .feedback-box.incorrect {
+            background: var(--danger);
+            color: white;
+            display: block;
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .leaderboard-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .time-btn {
+            padding: 0.5rem 1rem;
+            background: var(--light);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .time-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(10px);
+        }
+
+        .rank {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+        }
+
+        .rank.gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+
+        .rank.silver {
+            background: linear-gradient(135deg, #C0C0C0, #808080);
+        }
+
+        .rank.bronze {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .user-school {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .user-score {
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Tags System */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--light);
+            border-radius: 15px;
+            font-size: 0.85rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tag:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tag-input {
+            padding: 0.25rem 0.75rem;
+            background: transparent;
+            border: 1px dashed var(--gray);
+            border-radius: 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Analytics Dashboard */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .metrics-list {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .metric-label {
+            color: var(--gray);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Badges & Achievements */
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .badge-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge-card.earned {
+            box-shadow: 0 5px 20px rgba(91, 71, 251, 0.2);
+        }
+
+        .badge-card.locked {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+
+        .badge-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-name {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .badge-description {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Loading State */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--light);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 71, 251, 0.1);
+        }
+
+        select.form-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(91, 71, 251, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                display: none;
+            }
+
+            .builder-container {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <div class="nav-logo">
+                <span>M!</span> MathIt!
+            </div>
+            <div class="nav-tabs">
+                <a href="#" class="nav-tab active" onclick="showSection('home')">🏠 Home</a>
+                <a href="#" class="nav-tab" onclick="showSection('create')">➕ Create</a>
+                <a href="#" class="nav-tab" onclick="showSection('explore')">🔍 Explore</a>
+                <a href="#" class="nav-tab" onclick="showSection('students')">👥 Students</a>
+                <a href="#" class="nav-tab" onclick="showSection('analytics')">📊 Analytics</a>
+                <a href="#" class="nav-tab" onclick="showSection('profile')">👤 Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard">
+        <!-- Home Section -->
+        <div id="home" class="section active">
+            <h1 style="font-size: 2rem; margin-bottom: 2rem;">Welcome back! Ready to math it? 🚀</h1>
+            
+            <!-- Stats Overview -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">📚</div>
+                        <span class="stat-change">+12% this week</span>
+                    </div>
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">Challenges Created</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">👥</div>
+                        <span class="stat-change">+28% this week</span>
+                    </div>
+                    <div class="stat-value">347</div>
+                    <div class="stat-label">Active Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">✅</div>
+                        <span class="stat-change">+15% this week</span>
+                    </div>
+                    <div class="stat-value">1,284</div>
+                    <div class="stat-label">Problems Mathed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon">🏆</div>
+                        <span class="stat-change">New!</span>
+                    </div>
+                    <div class="stat-value">92%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="leaderboard">
+                <div class="leaderboard-header">
+                    <h2 class="leaderboard-title">🏆 Top Mathers This Week</h2>
+                    <div class="time-filter">
+                        <button class="time-btn active">Week</button>
+                        <button class="time-btn">Month</button>
+                        <button class="time-btn">All Time</button>
+                    </div>
+                </div>
+                <div class="leaderboard-list">
+                    <div class="leaderboard-item">
+                        <div class="rank gold">1</div>
+                        <div class="user-info">
+                            <div class="user-name">Sarah Chen</div>
+                            <div class="user-school">Lincoln High School</div>
+                        </div>
+                        <div class="user-score">2,450</div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank silver">2</div>
+                        <div class="user-info">
+                            <div class="user-name">Marcus Johnson</div>
+                            <div class="user-school">Roosevelt Academy</div>
+                        </div>
+                        <div class="user-score">2,380</div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank bronze">3</div>
+                        <div class="user-info">
+                            <div class="user-name">Emily Rodriguez</div>
+                            <div class="user-school">Washington Prep</div>
+                        </div>
+                        <div class="user-score">2,240</div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank">4</div>
+                        <div class="user-info">
+                            <div class="user-name">Alex Kim</div>
+                            <div class="user-school">Jefferson Middle</div>
+                        </div>
+                        <div class="user-score">2,180</div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank">5</div>
+                        <div class="user-info">
+                            <div class="user-name">Jordan Williams</div>
+                            <div class="user-school">Madison High</div>
+                        </div>
+                        <div class="user-score">2,095</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Section -->
+        <div id="create" class="section">
+            <h1 style="font-size: 2rem; margin-bottom: 2rem;">Create a Math Challenge 🎯</h1>
+            
+            <div class="builder-container">
+                <!-- Builder Form -->
+                <div class="builder-form">
+                    <div class="form-section">
+                        <div class="form-section-title">📝 Basic Information</div>
+                        <div class="form-group">
+                            <label class="form-label">Challenge Title</label>
+                            <input type="text" class="form-input" id="challengeTitle" placeholder="e.g., Math Your Credit Card Debt">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Real-World Problem</label>
+                            <input type="text" class="form-input" id="realProblem" placeholder="e.g., Calculate the true cost of minimum payments">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-input" id="description" placeholder="What will students learn and accomplish?"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">🎮 Challenge Content</div>
+                        <div class="editor-toolbar">
+                            <button class="editor-btn">B</button>
+                            <button class="editor-btn">I</button>
+                            <button class="editor-btn">U</button>
+                            <button class="editor-btn">Link</button>
+                            <button class="editor-btn">Image</button>
+                            <button class="editor-btn">Math</button>
+                            <button class="editor-btn">Code</button>
+                        </div>
+                        <div class="editor-content" contenteditable="true" id="challengeContent">
+                            Start writing your challenge here. Use **bold** for emphasis and $$math$$ for equations.
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">📋 Challenge Steps</div>
+                        <div class="challenge-steps" id="challengeSteps">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <input type="text" class="form-input" placeholder="First step of the challenge">
+                                </div>
+                            </div>
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <input type="text" class="form-input" placeholder="Second step of the challenge">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="add-step-btn" onclick="addStep()">+ Add Step</button>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">🏷️ Tags & Categories</div>
+                        <div class="tags-container" id="tagsContainer">
+                            <span class="tag">Financial Math</span>
+                            <span class="tag">Real World</span>
+                            <span class="tag">Problem Solving</span>
+                            <input type="text" class="tag-input" placeholder="+ Add tag">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 2rem;">
+                        Publish Challenge 🚀
+                    </button>
+                </div>
+
+                <!-- Preview -->
+                <div class="builder-preview">
+                    <h3 style="margin-bottom: 1rem;">📱 Live Preview</h3>
+                    <div class="challenge-player">
+                        <div class="challenge-header">
+                            <h2 class="challenge-title" id="previewTitle">Your Challenge Title</h2>
+                            <p id="previewDescription">Challenge description will appear here</p>
+                            <div class="challenge-meta">
+                                <div class="meta-item">
+                                    <span>📊</span>
+                                    <span>Difficulty: Medium</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span>⏱️</span>
+                                    <span>15-20 mins</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span>🎯</span>
+                                    <span>500 points</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="previewContent">
+                            <p>Challenge content will be rendered here...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Explore Section -->
+        <div id="explore" class="section">
+            <h1 style="font-size: 2rem; margin-bottom: 2rem;">Explore Challenges 🔍</h1>
+            
+            <!-- Search and Filters -->
+            <div style="background: white; padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem;">
+                <input type="text" class="form-input" placeholder="Search challenges..." style="margin-bottom: 1rem;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <select class="form-input" style="width: auto;">
+                        <option>All Topics</option>
+                        <option>Financial Math</option>
+                        <option>Statistics</option>
+                        <option>Game Theory</option>
+                        <option>Calculus</option>
+                    </select>
+                    <select class="form-input" style="width: auto;">
+                        <option>All Difficulties</option>
+                        <option>Easy</option>
+                        <option>Medium</option>
+                        <option>Hard</option>
+                    </select>
+                    <select class="form-input" style="width: auto;">
+                        <option>All Ages</option>
+                        <option>10-12</option>
+                        <option>12-14</option>
+                        <option>14-16</option>
+                        <option>16-17</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Challenge Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                <!-- Sample Challenge Cards -->
+                <div class="badge-card earned" style="text-align: left; padding: 1.5rem;">
+                    <h3 style="margin-bottom: 0.5rem;">Compound Interest Calculator</h3>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">Build a calculator to see how money grows over time with compound interest.</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--success); font-weight: 600;">Easy</span>
+                        <button class="btn btn-primary" style="padding: 0.5rem 1rem;">Math It!</button>
+                    </div>
+                </div>
+                <div class="badge-card earned" style="text-align: left; padding: 1.5rem;">
+                    <h3 style="margin-bottom: 0.5rem;">Stock Market Simulator</h3>
+                    <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;">Learn probability and statistics by simulating stock market investments.</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: var(--accent); font-weight: 600;">Medium</span>
+                        <button class="btn btn-primary" style="padding: 0.5rem 1rem;">Math It!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Section -->
+        <div id="students" class="section">
+            <h1 style="font-size: 2rem; margin-bottom: 2rem;">Student Management 👥</h1>
+            
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+                <!-- Class Overview -->
+                <div style="background: white; padding: 1.5rem; border-radius: 15px;">
+                    <h3 style="margin-bottom: 1rem;">Classes</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px; cursor: pointer;">
+                            <div style="font-weight: 600;">Algebra II - Period 3</div>
+                            <div style="color: var(--gray); font-size: 0.85rem;">28 students</div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px; cursor: pointer;">
+                            <div style="font-weight: 600;">Pre-Calculus - Period 5</div>
+                            <div style="color: var(--gray); font-size: 0.85rem;">24 students</div>
+                        </div>
+                        <button class="btn btn-secondary" style="margin-top: 1rem;">+ Add Class</button>
+                    </div>
+                </div>
+
+                <!-- Student List -->
+                <div style="background: white; padding: 1.5rem; border-radius: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>Students in Algebra II</h3>
+                        <button class="btn btn-primary" style="padding: 0.5rem 1rem;">+ Add Student</button>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div>
+                                <div style="font-weight: 600;">Sarah Chen</div>
+                                <div style="color: var(--gray); font-size: 0.85rem;">12 challenges completed</div>
+                            </div>
+                            <div style="color: var(--success); font-weight: 600;">94%</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div>
+                                <div style="font-weight: 600;">Marcus Johnson</div>
+                                <div style="color: var(--gray); font-size: 0.85rem;">10 challenges completed</div>
+                            </div>
+                            <div style="color: var(--success); font-weight: 600;">88%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analytics" class="section">
+            <h1 style="font-size: 2rem; margin-bottom: 2rem;">Analytics Dashboard 📊</h1>
+            
+            <div class="analytics-grid">
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem;">Student Progress Over Time</h3>
+                    <canvas id="progressChart"></canvas>
+                </div>
+                <div class="metrics-list">
+                    <h3 style="margin-bottom: 1rem;">Key Metrics</h3>
+                    <div class="metric-item">
+                        <span class="metric-label">Average Score</span>
+                        <span class="metric-value">87%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Completion Rate</span>
+                        <span class="metric-value">92%</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Time per Challenge</span>
+                        <span class="metric-value">18m</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Most Difficult Topic</span>
+                        <span class="metric-value">Calculus</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Badges Section -->
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Student Achievements 🏆</h3>
+            <div class="badges-grid">
+                <div class="badge-card earned">
+                    <div class="badge-icon">🚀</div>
+                    <div class="badge-name">Quick Starter</div>
+                    <div class="badge-description">Complete 5 challenges</div>
+                </div>
+                <div class="badge-card earned">
+                    <div class="badge-icon">🔥</div>
+                    <div class="badge-name">On Fire</div>
+                    <div class="badge-description">7-day streak</div>
+                </div>
+                <div class="badge-card earned">
+                    <div class="badge-icon">💯</div>
+                    <div class="badge-name">Perfect Score</div>
+                    <div class="badge-description">100% on any challenge</div>
+                </div>
+                <div class="badge-card locked">
+                    <div class="badge-icon">👑</div>
+                    <div class="badge-name">Math Master</div>
+                    <div class="badge-description">Complete 50 challenges</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile" class="section">
+            <h1 style="font-size: 2rem; margin-bottom: 2rem;">Your Profile 👤</h1>
+            
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+                <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center;">
+                    <div style="width: 100px; height: 100px; background: var(--gradient); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; font-weight: 900;">
+                        JD
+                    </div>
+                    <h3>Jane Doe</h3>
+                    <p style="color: var(--gray);">Mathematics Educator</p>
+                    <p style="color: var(--gray); font-size: 0.9rem;">Lincoln High School</p>
+                    <button class="btn btn-secondary" style="margin-top: 1rem; width: 100%;">Edit Profile</button>
+                </div>
+                <div style="background: white; padding: 2rem; border-radius: 15px;">
+                    <h3 style="margin-bottom: 1rem;">Your Stats</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 900; color: var(--primary);">24</div>
+                            <div style="color: var(--gray); font-size: 0.9rem;">Challenges Created</div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 900; color: var(--primary);">347</div>
+                            <div style="color: var(--gray); font-size: 0.9rem;">Total Students</div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 900; color: var(--primary);">1,284</div>
+                            <div style="color: var(--gray); font-size: 0.9rem;">Problems Solved</div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--light); border-radius: 10px;">
+                            <div style="font-size: 1.5rem; font-weight: 900; color: var(--primary);">4.8</div>
+                            <div style="color: var(--gray); font-size: 0.9rem;">Average Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration - REPLACE WITH YOUR CONFIG
+        const firebaseConfig = {
+  apiKey: "AIzaSyBZoRb4YrKb5Gzx0nJ0yrWaKePL_xlGQj8",
+  authDomain: "mathit-app.firebaseapp.com",
+  projectId: "mathit-app",
+  storageBucket: "mathit-app.firebasestorage.app",
+  messagingSenderId: "222574142340",
+  appId: "1:222574142340:web:c3da36c5e8a7cd3db773d1",
+  measurementId: "G-MTX9432V5M"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Challenge Builder Functions
+        let stepCount = 2;
+        
+        function addStep() {
+            stepCount++;
+            const stepsContainer = document.getElementById('challengeSteps');
+            const newStep = document.createElement('div');
+            newStep.className = 'step-item';
+            newStep.innerHTML = `
+                <div class="step-number">${stepCount}</div>
+                <div class="step-content">
+                    <input type="text" class="form-input" placeholder="Step ${stepCount} of the challenge">
+                </div>
+            `;
+            stepsContainer.insertBefore(newStep, stepsContainer.lastElementChild);
+        }
+
+        // Live Preview
+        document.getElementById('challengeTitle').addEventListener('input', (e) => {
+            document.getElementById('previewTitle').textContent = e.target.value || 'Your Challenge Title';
+        });
+
+        document.getElementById('description').addEventListener('input', (e) => {
+            document.getElementById('previewDescription').textContent = e.target.value || 'Challenge description will appear here';
+        });
+
+        document.getElementById('challengeContent').addEventListener('input', (e) => {
+            const content = e.target.innerHTML;
+            // Convert markdown-style to HTML
+            let rendered = content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\$\$(.*?)\$\$/g, '<span class="math">$1</span>');
+            document.getElementById('previewContent').innerHTML = rendered;
+        });
+
+        // Analytics Chart
+        const ctx = document.getElementById('progressChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Problems Solved',
+                        data: [12, 19, 15, 25, 22, 30, 28],
+                        borderColor: '#5B47FB',
+                        backgroundColor: 'rgba(91, 71, 251, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Average Score',
+                        data: [85, 88, 84, 92, 90, 94, 91],
+                        borderColor: '#00D4AA',
+                        backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize MathJax
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+</body>
+</html>
