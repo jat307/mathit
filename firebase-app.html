@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathIt! - Math it. Solve it. Own it.</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5B47FB;
+            --primary-dark: #4936E8;
+            --secondary: #00D4AA;
+            --accent: #FFB800;
+            --success: #10B981;
+            --danger: #EF4444;
+            --dark: #1a1a2e;
+            --gray: #64748b;
+            --light: #f1f5f9;
+            --white: #ffffff;
+            --gradient: linear-gradient(135deg, #5B47FB 0%, #00D4AA 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #5B47FB08 0%, #00D4AA08 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Loading State */
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Auth Container */
+        .auth-container {
+            max-width: 440px;
+            margin: 80px auto;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-mark {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .auth-logo h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            color: var(--gray);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--light);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(91, 71, 251, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--danger);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(91, 71, 251, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(91, 71, 251, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            margin-top: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-logo-mark {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 1.5rem;
+        }
+
+        .header-logo h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .user-email {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-title {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .action-desc {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* Activity Creator */
+        .activity-creator {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .activity-creator h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        select.form-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Activities List */
+        .activities-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            background: var(--light);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .activity-card {
+            border: 2px solid var(--light);
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient);
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .activity-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .activity-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .difficulty-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .difficulty-easy { background: #10B98120; color: #059669; }
+        .difficulty-medium { background: #FFB80020; color: #CC9200; }
+        .difficulty-hard { background: #EF444420; color: #DC2626; }
+
+        .activity-description {
+            color: var(--gray);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .activity-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--light);
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .activity-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Success Message */
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-toast.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .activities-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Auth Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-logo">
+            <div class="logo-mark">M!</div>
+            <h1>MathIt!</h1>
+            <p class="tagline">Math it. Solve it. Own it.</p>
+        </div>
+
+        <div id="authForms">
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="educator@school.edu">
+                    <div class="error-message" id="loginEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password">
+                    <div class="error-message" id="loginPasswordError"></div>
+                </div>
+                <button class="btn btn-primary" onclick="handleLogin()">Start Mathing!</button>
+                <button class="btn btn-secondary" onclick="toggleAuthMode()">Create Educator Account</button>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" style="display: none;">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" class="form-input" placeholder="Jane Doe">
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" class="form-input" placeholder="educator@school.edu">
+                    <div class="error-message" id="signupEmailError"></div>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" class="form-input" placeholder="Create a strong password">
+                    <div class="error-message" id="signupPasswordError"></div>
+                </div>
+                <button class="btn btn-primary" onclick="handleSignup()">Join MathIt!</button>
+                <button class="btn btn-secondary" onclick="toggleAuthMode()">Already have an account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-logo">
+                <div class="header-logo-mark">M!</div>
+                <h2>MathIt!</h2>
+            </div>
+            <div class="user-menu">
+                <span class="user-email" id="userEmail"></span>
+                <div class="user-avatar" id="userAvatar">?</div>
+                <button class="btn btn-primary" style="width: auto; padding: 0.5rem 1rem;" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="action-card" onclick="scrollToCreate()">
+                <div class="action-icon">➕</div>
+                <div class="action-title">Create Challenge</div>
+                <div class="action-desc">Math a new problem</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">📊</div>
+                <div class="action-title">My Stats</div>
+                <div class="action-desc">12 challenges created</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">👥</div>
+                <div class="action-title">Students</div>
+                <div class="action-desc">247 active mathers</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon">🏆</div>
+                <div class="action-title">Leaderboard</div>
+                <div class="action-desc">Top challenges</div>
+            </div>
+        </div>
+
+        <!-- Activity Creator -->
+        <div class="activity-creator" id="createSection">
+            <h3>🚀 Create a New Math Challenge</h3>
+            <form id="activityForm" onsubmit="handleCreateActivity(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Challenge Title *</label>
+                        <input type="text" id="activityTitle" class="form-input" required 
+                               placeholder="e.g., Math Your Money">
+                    </div>
+                    <div class="form-group">
+                        <label>Real-World Problem *</label>
+                        <input type="text" id="realWorldChallenge" class="form-input" required 
+                               placeholder="e.g., Calculate compound interest">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description *</label>
+                    <textarea id="description" class="form-input" required 
+                              placeholder="Describe what students will math and learn..."></textarea>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Math Topic *</label>
+                        <select id="mathTopic" class="form-input" required>
+                            <option value="">Select topic</option>
+                            <option value="probability">📊 Probability</option>
+                            <option value="statistics">📈 Statistics</option>
+                            <option value="game-theory">🎯 Game Theory</option>
+                            <option value="financial">💹 Financial Math</option>
+                            <option value="calculus">∫ Calculus</option>
+                            <option value="linear-algebra">⊕ Linear Algebra</option>
+                            <option value="functional">ƒ Functional Math</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Difficulty *</label>
+                        <select id="difficulty" class="form-input" required>
+                            <option value="">Select difficulty</option>
+                            <option value="easy">🟢 Easy</option>
+                            <option value="medium">🟡 Medium</option>
+                            <option value="hard">🔴 Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Age Range *</label>
+                        <select id="ageRange" class="form-input" required>
+                            <option value="">Select age</option>
+                            <option value="10-12">10-12 years</option>
+                            <option value="12-14">12-14 years</option>
+                            <option value="14-16">14-16 years</option>
+                            <option value="16-17">16-17 years</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: auto; padding: 0.75rem 2rem; margin-top: 1rem;">
+                    Math This Challenge! 🚀
+                </button>
+            </form>
+        </div>
+
+        <!-- Activities List -->
+        <div class="activities-section">
+            <div class="section-header">
+                <h3>Community Challenges</h3>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterActivities('all')">All</button>
+                    <button class="filter-tab" onclick="filterActivities('mine')">My Challenges</button>
+                    <button class="filter-tab" onclick="filterActivities('recent')">Recent</button>
+                </div>
+            </div>
+            <div id="activitiesGrid" class="activities-grid">
+                <!-- Activities will load here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="success-toast" id="successToast">
+        ✓ Challenge created successfully!
+    </div>
+
+    <script>
+        // Firebase configuration - REPLACE WITH YOUR CONFIG
+        const firebaseConfig = {
+  apiKey: "AIzaSyBZoRb4YrKb5Gzx0nJ0yrWaKePL_xlGQj8",
+  authDomain: "mathit-app.firebaseapp.com",
+  projectId: "mathit-app",
+  storageBucket: "mathit-app.firebasestorage.app",
+  messagingSenderId: "222574142340",
+  appId: "1:222574142340:web:c3da36c5e8a7cd3db773d1",
+  measurementId: "G-MTX9432V5M"
+};
+
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let activities = [];
+
+        // Auth state observer
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                showDashboard();
+            } else {
+                showAuth();
+            }
+        });
+
+        // Toggle between login and signup
+        function toggleAuthMode() {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            }
+        }
+
+        // Handle login
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            clearErrors();
+            
+            if (!email || !password) {
+                if (!email) showError('loginEmailError', 'Email is required');
+                if (!password) showError('loginPasswordError', 'Password is required');
+                return;
+            }
+
+            showLoading(true);
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                showLoading(false);
+                handleAuthError(error, 'login');
+            }
+        }
+
+        // Handle signup
+        async function handleSignup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            clearErrors();
+            
+            if (!name || !email || !password) {
+                if (!email) showError('signupEmailError', 'Email is required');
+                if (!password) showError('signupPasswordError', 'Password is required');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('signupPasswordError', 'Password must be at least 6 characters');
+                return;
+            }
+
+            showLoading(true);
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                // Add user profile
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: email,
+                    role: 'educator',
+                    created: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update display name
+                await userCredential.user.updateProfile({
+                    displayName: name
+                });
+                
+            } catch (error) {
+                showLoading(false);
+                handleAuthError(error, 'signup');
+            }
+        }
+
+        // Handle logout
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            showLoading(false);
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            
+            // Update user info
+            const userEmail = document.getElementById('userEmail');
+            const userAvatar = document.getElementById('userAvatar');
+            
+            userEmail.textContent = currentUser.email;
+            userAvatar.textContent = (currentUser.displayName || currentUser.email)[0].toUpperCase();
+            
+            loadActivities();
+        }
+
+        // Show auth
+        function showAuth() {
+            showLoading(false);
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('dashboard').classList.remove('active');
+        }
+
+        // Create activity
+        async function handleCreateActivity(event) {
+            event.preventDefault();
+            
+            const activity = {
+                title: document.getElementById('activityTitle').value,
+                challenge: document.getElementById('realWorldChallenge').value,
+                description: document.getElementById('description').value,
+                topic: document.getElementById('mathTopic').value,
+                difficulty: document.getElementById('difficulty').value,
+                ageRange: document.getElementById('ageRange').value,
+                authorId: currentUser.uid,
+                authorEmail: currentUser.email,
+                authorName: currentUser.displayName || currentUser.email.split('@')[0],
+                created: firebase.firestore.FieldValue.serverTimestamp(),
+                likes: 0,
+                views: 0
+            };
+
+            showLoading(true);
+            
+            try {
+                await db.collection('activities').add(activity);
+                
+                document.getElementById('activityForm').reset();
+                showSuccess('Challenge created successfully!');
+                loadActivities();
+                
+            } catch (error) {
+                console.error('Error creating activity:', error);
+                alert('Error creating activity. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load activities
+        async function loadActivities() {
+            try {
+                const snapshot = await db.collection('activities')
+                    .orderBy('created', 'desc')
+                    .limit(20)
+                    .get();
+                
+                activities = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                displayActivities(activities);
+                
+            } catch (error) {
+                console.error('Error loading activities:', error);
+                document.getElementById('activitiesGrid').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <h3>No challenges yet</h3>
+                        <p>Be the first to create a math challenge!</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display activities
+        function displayActivities(activitiesToShow) {
+            const grid = document.getElementById('activitiesGrid');
+            
+            if (activitiesToShow.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎯</div>
+                        <h3>No challenges found</h3>
+                        <p>Create your first math challenge above!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = activitiesToShow.map(activity => `
+                <div class="activity-card" onclick="viewActivity('${activity.id}')">
+                    <div class="activity-header">
+                        <h4 class="activity-title">${activity.title}</h4>
+                        <span class="difficulty-badge difficulty-${activity.difficulty}">
+                            ${activity.difficulty}
+                        </span>
+                    </div>
+                    <p class="activity-description">
+                        <strong>Challenge:</strong> ${activity.challenge}<br>
+                        ${activity.description}
+                    </p>
+                    <div class="activity-meta">
+                        <span>👥 Ages ${activity.ageRange}</span>
+                        <div class="activity-author">
+                            <span>By ${activity.authorName}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter activities
+        function filterActivities(filter) {
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter activities
+            let filtered = activities;
+            
+            if (filter === 'mine' && currentUser) {
+                filtered = activities.filter(a => a.authorId === currentUser.uid);
+            } else if (filter === 'recent') {
+                filtered = activities.slice(0, 5);
+            }
+            
+            displayActivities(filtered);
+        }
+
+        // View activity
+        function viewActivity(activityId) {
+            console.log('View activity:', activityId);
+            // In a real app, this would open the activity details
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loadingSpinner').classList.toggle('active', show);
+        }
+
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.classList.add('show');
+            }
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+                el.textContent = '';
+            });
+        }
+
+        function showSuccess(message) {
+            const toast = document.getElementById('successToast');
+            toast.textContent = '✓ ' + message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function handleAuthError(error, type) {
+            const errorMap = {
+                'auth/email-already-in-use': 'This email is already registered',
+                'auth/invalid-email': 'Invalid email address',
+                'auth/weak-password': 'Password must be at least 6 characters',
+                'auth/user-not-found': 'No account found with this email',
+                'auth/wrong-password': 'Incorrect password',
+                'auth/network-request-failed': 'Network error. Please check your connection'
+            };
+
+            const message = errorMap[error.code] || 'An error occurred. Please try again.';
+            
+            if (type === 'login') {
+                showError('loginPasswordError', message);
+            } else {
+                showError('signupPasswordError', message);
+            }
+        }
+
+        function scrollToCreate() {
+            document.getElementById('createSection').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
