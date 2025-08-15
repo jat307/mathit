@@ -118,9 +118,8 @@ MIT License - see LICENSE file for details
 
 ## 🤝 Contact
 
-- Website: [mathit.io](https://mathit.io) (coming soon)
-- Email: hello@mathit.io
-- Twitter: [@mathit](https://twitter.com/mathit)
+- Website: [mathit.ai](https://mathit.ai) (coming soon)
+- Email: hello@mathit.ai (coming soon)
 
 ## 💡 The MathIt Language
 
