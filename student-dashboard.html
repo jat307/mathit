@@ -9,9 +9,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
     
     <!-- Math Rendering -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/startup.js"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <!-- Chart for Progress -->
@@ -1036,21 +1038,7 @@
     </div>
 
     <script>
-        // Firebase configuration - REPLACE WITH YOUR CONFIG
-        const firebaseConfig = {
-  apiKey: "AIzaSyBZoRb4YrKb5Gzx0nJ0yrWaKePL_xlGQj8",
-  authDomain: "mathit-app.firebaseapp.com",
-  projectId: "mathit-app",
-  storageBucket: "mathit-app.firebasestorage.app",
-  messagingSenderId: "222574142340",
-  appId: "1:222574142340:web:c3da36c5e8a7cd3db773d1",
-  measurementId: "G-MTX9432V5M"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+       // Firebase is already configured in js/firebase-config.js
 
         // Current challenge state
         let currentChallenge = null;

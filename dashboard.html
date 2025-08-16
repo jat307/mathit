@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathIt - Development Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #5B47FB08 0%, #00D4AA08 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #5B47FB 0%, #00D4AA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .card a {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #5B47FB 0%, #00D4AA 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .card a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(91, 71, 251, 0.3);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .status.ready {
+            background: #10B98120;
+            color: #10B981;
+        }
+
+        .status.partial {
+            background: #FFB80020;
+            color: #CC9200;
+        }
+
+        .status.setup {
+            background: #EF444420;
+            color: #EF4444;
+        }
+
+        .setup-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .setup-section h2 {
+            color: #1a1a2e;
+            margin-bottom: 1rem;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #5B47FB;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .check.done {
+            background: #5B47FB;
+            color: white;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #5B47FB;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MathIt Development Hub</h1>
+        <p class="subtitle">Your central control panel for all MathIt pages</p>
+
+        <!-- Setup Status -->
+        <div class="setup-section">
+            <h2>🚀 Quick Setup Checklist</h2>
+            <ul class="checklist">
+                <li>
+                    <span class="check done">✓</span>
+                    <span><strong>Google Analytics:</strong> Connected with ID <code>G-HFML3WBQGK</code></span>
+                </li>
+                <li>
+                    <span class="check done">✓</span>
+                    <span><strong>Hotjar:</strong> Connected with ID <code>6494602</code></span>
+                </li>
+                <li>
+                    <span class="check">⚠️</span>
+                    <span><strong>Firebase:</strong> Need to update configuration in all files</span>
+                </li>
+                <li>
+                    <span class="check">⚠️</span>
+                    <span><strong>Domain:</strong> Need to connect mathit.ai domain</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Pages Grid -->
+        <div class="cards-grid">
+            <!-- Landing Page -->
+            <div class="card">
+                <span class="status ready">✓ Ready</span>
+                <h2>🏠 Landing Page</h2>
+                <p>Your main marketing page with AI demo. Analytics tracking is active and ready for visitors.</p>
+                <a href="mathit-landing-page.html">Open Landing Page</a>
+            </div>
+
+            <!-- Student Dashboard -->
+            <div class="card">
+                <span class="status partial">⚠️ Needs Firebase</span>
+                <h2>👨‍🎓 Student Dashboard</h2>
+                <p>Gamified interface where students complete challenges, earn points, and track progress.</p>
+                <a href="mathit-student.html">Open Student Dashboard</a>
+            </div>
+
+            <!-- Educator Dashboard -->
+            <div class="card">
+                <span class="status partial">⚠️ Needs Firebase</span>
+                <h2>👩‍🏫 Educator Dashboard</h2>
+                <p>Full admin panel for creating challenges, managing students, and viewing analytics.</p>
+                <a href="mathit-enhanced.html">Open Educator Dashboard</a>
+            </div>
+
+            <!-- AI Tools -->
+            <div class="card">
+                <span class="status setup">🔧 Needs API Setup</span>
+                <h2>🤖 AI Tools</h2>
+                <p>AI-powered challenge generator interface. Requires API connection to function.</p>
+                <a href="mathit-ai-interface.html">Open AI Tools</a>
+            </div>
+
+            <!-- MVP Demo -->
+            <div class="card">
+                <span class="status ready">✓ Ready</span>
+                <h2>🎯 MVP Demo</h2>
+                <p>Simplified showcase version for demonstrations and investor presentations.</p>
+                <a href="mathit-branded-mvp.html">Open MVP Demo</a>
+            </div>
+
+            <!-- Test Login -->
+            <div class="card" style="background: linear-gradient(135deg, #5B47FB08 0%, #00D4AA08 100%);">
+                <h2>🔐 Test Different User Views</h2>
+                <p><strong>Student View:</strong> Use student dashboard<br>
+                   <strong>Educator View:</strong> Use educator dashboard<br>
+                   <strong>Visitor View:</strong> Use landing page</p>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="setup-section">
+            <h2>📋 Next Steps</h2>
+            <ol style="padding-left: 1.5rem; line-height: 2;">
+                <li><strong>Save all files in the same folder</strong> on your computer</li>
+                <li><strong>Name this file</strong> <code>index.html</code> - this will be your main file</li>
+                <li><strong>Set up Firebase</strong> (we'll do this next)</li>
+                <li><strong>Test locally</strong> by opening index.html in your browser</li>
+                <li><strong>Deploy to hosting</strong> when ready</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

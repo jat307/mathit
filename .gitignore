@@ -39,3 +39,10 @@ temp/
 config.js
 firebase-config.js
 api-keys.js
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Never commit API keys!
+**/config.js

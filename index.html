@@ -3,7 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MathIt - Math it. Solve it. Own it.</title>
+    <title>MathIt.ai - Making Math a Verb with AI</title>
+    <meta name="description" content="Transform math education with AI-powered real-world challenges. Generate engaging math problems in seconds. Free for educators during beta.">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX'); // Replace with your GA4 ID
+    </script>
+    
+    <!-- Hotjar Tracking (Optional) -->
+    <script>
+        (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:XXXXXXX,hjsv:6}; // Replace with your Hotjar ID
+        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    </script>
     
     <style>
         * {
@@ -17,6 +35,7 @@
             --primary-dark: #4936E8;
             --secondary: #00D4AA;
             --accent: #FFB800;
+            --success: #10B981;
             --dark: #1a1a2e;
             --gray: #64748b;
             --light: #f8fafc;
@@ -25,27 +44,45 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #5B47FB08 0%, #00D4AA08 100%);
-            min-height: 100vh;
+            line-height: 1.6;
+            color: var(--dark);
+            overflow-x: hidden;
         }
 
-        /* Logo and Branding */
-        .logo {
-            font-size: 2rem;
-            font-weight: 900;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: inline-flex;
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.5rem;
         }
 
-        .logo-mark {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-box {
             width: 40px;
             height: 40px;
             background: var(--gradient);
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -54,89 +91,12 @@
             font-size: 1.2rem;
         }
 
-        /* Hero Section */
-        .hero {
-            background: white;
-            padding: 4rem 2rem;
-            text-align: center;
-            border-bottom: 1px solid var(--light);
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
+        .logo-text {
+            font-size: 1.5rem;
             font-weight: 900;
-        }
-
-        .hero .highlight {
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-
-        .hero .tagline {
-            font-size: 1.5rem;
-            color: var(--gray);
-            margin-bottom: 2rem;
-        }
-
-        .verb-examples {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 3rem;
-        }
-
-        .verb-card {
-            background: white;
-            border: 2px solid var(--light);
-            border-radius: 15px;
-            padding: 1.5rem;
-            width: 200px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .verb-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(91, 71, 251, 0.1);
-        }
-
-        .verb-card .icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .verb-card .phrase {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .verb-card .context {
-            font-size: 0.9rem;
-            color: var(--gray);
-        }
-
-        /* Navigation */
-        nav {
-            background: white;
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .nav-links {
@@ -148,7 +108,7 @@
         .nav-links a {
             text-decoration: none;
             color: var(--gray);
-            font-weight: 600;
+            font-weight: 500;
             transition: color 0.3s;
         }
 
@@ -156,219 +116,235 @@
             color: var(--primary);
         }
 
-        .btn-primary {
-            background: var(--gradient);
-            color: white;
-            border: none;
+        .btn-nav {
             padding: 0.75rem 1.5rem;
+            background: var(--gradient);
+            color: white !important;
+            text-decoration: none;
             border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
+            font-weight: 600;
             transition: all 0.3s;
-            font-size: 1rem;
         }
 
-        .btn-primary:hover {
+        .btn-nav:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(91, 71, 251, 0.3);
         }
 
-        /* Main Content */
-        .container {
-            max-width: 1400px;
-            margin: 3rem auto;
-            padding: 0 2rem;
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 4rem;
+            background: linear-gradient(135deg, #667eea08 0%, #764ba208 100%);
+            text-align: center;
         }
 
-        /* Challenge Cards */
-        .challenges-section {
-            margin-top: 3rem;
+        .hero-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--secondary);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero h1 .gradient-text {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.4rem;
+            color: var(--gray);
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 1rem 2.5rem;
+            background: var(--gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(91, 71, 251, 0.4);
+        }
+
+        .btn-secondary {
+            padding: 1rem 2.5rem;
+            background: white;
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Live Demo Section */
+        .demo-section {
+            padding: 4rem 2rem;
+            background: white;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
         }
 
         .section-header h2 {
-            font-size: 2rem;
-            font-weight: 800;
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
         }
 
-        .challenge-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--gray);
+        }
+
+        .demo-box {
+            background: linear-gradient(135deg, #667eea08 0%, #764ba208 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .demo-form {
+            display: flex;
+            flex-direction: column;
             gap: 1.5rem;
         }
 
-        .challenge-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
+        .form-group {
+            text-align: left;
         }
 
-        .challenge-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--gradient);
-            transform: translateX(-100%);
-            transition: transform 0.3s;
-        }
-
-        .challenge-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-
-        .challenge-card:hover::before {
-            transform: translateX(0);
-        }
-
-        .challenge-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 1rem;
-        }
-
-        .challenge-title {
-            font-size: 1.3rem;
-            font-weight: 700;
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
             color: var(--dark);
         }
 
-        .difficulty-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .difficulty-easy {
-            background: #00D4AA20;
-            color: #00A087;
-        }
-
-        .difficulty-medium {
-            background: #FFB80020;
-            color: #CC9200;
-        }
-
-        .difficulty-hard {
-            background: #FF5C5C20;
-            color: #E04444;
-        }
-
-        .challenge-description {
-            color: var(--gray);
-            line-height: 1.5;
-            margin-bottom: 1rem;
-        }
-
-        .challenge-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--primary);
-            font-weight: 700;
-            text-decoration: none;
-            transition: gap 0.3s;
-        }
-
-        .challenge-cta:hover {
-            gap: 1rem;
-        }
-
-        /* Quick Math Section */
-        .quick-math {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 3rem;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        }
-
-        .quick-math h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .math-input-group {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .math-input {
-            flex: 1;
-            padding: 1rem;
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.875rem;
             border: 2px solid var(--light);
             border-radius: 10px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             transition: all 0.3s;
         }
 
-        .math-input:focus {
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(91, 71, 251, 0.1);
         }
 
-        .math-examples {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
+        .demo-result {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            animation: slideUp 0.5s ease;
         }
 
-        .example-chip {
-            padding: 0.5rem 1rem;
-            background: var(--light);
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: var(--gray);
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .example-chip:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
+        .demo-result.active {
+            display: block;
         }
 
         /* Stats Section */
+        .stats-section {
+            padding: 4rem 2rem;
+            background: var(--dark);
+            color: white;
+        }
+
         .stats-grid {
+            max-width: 1000px;
+            margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin: 3rem 0;
+            gap: 3rem;
+            text-align: center;
         }
 
         .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .stat-number {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 900;
             background: var(--gradient);
             -webkit-background-clip: text;
@@ -376,55 +352,239 @@
         }
 
         .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 4rem 2rem;
+            background: white;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 3rem auto 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
             color: var(--gray);
-            margin-top: 0.5rem;
+            line-height: 1.6;
+        }
+
+        /* Testimonials */
+        .testimonials-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #667eea08 0%, #764ba208 100%);
+        }
+
+        .testimonials-grid {
+            max-width: 1200px;
+            margin: 3rem auto 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .testimonial-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .author-info {
+            flex: 1;
+        }
+
+        .author-name {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .author-title {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 6rem 2rem;
+            background: var(--gradient);
+            text-align: center;
+            color: white;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-content h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+        }
+
+        .btn-cta {
+            padding: 1.25rem 3rem;
+            background: white;
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
 
         /* Footer */
         footer {
             background: var(--dark);
             color: white;
-            padding: 3rem 2rem;
-            margin-top: 5rem;
-            text-align: center;
+            padding: 3rem 2rem 2rem;
         }
 
         .footer-content {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
         }
 
-        .footer-tagline {
-            font-size: 1.5rem;
-            font-weight: 700;
+        .footer-section h4 {
             margin-bottom: 1rem;
         }
 
-        .footer-links {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        .footer-links a {
+        .footer-section a {
             color: #94a3b8;
             text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
             transition: color 0.3s;
         }
 
-        .footer-links a:hover {
+        .footer-section a:hover {
             color: var(--secondary);
         }
 
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #334155;
+            color: #94a3b8;
         }
 
-        .floating {
-            animation: float 3s ease-in-out infinite;
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .spinner.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -432,233 +592,381 @@
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
-            <div class="logo">
-                <div class="logo-mark">M!</div>
-                MathIt
-            </div>
+            <a href="/" class="logo">
+                <div class="logo-box">M!</div>
+                <span class="logo-text">MathIt.ai</span>
+            </a>
             <div class="nav-links">
-                <a href="#explore">Explore</a>
-                <a href="#educators">For Educators</a>
-                <a href="#students">For Students</a>
-                <a href="#about">About</a>
-                <button class="btn-primary">Start Mathing!</button>
+                <a href="#demo">Try Demo</a>
+                <a href="#features">Features</a>
+                <a href="#testimonials">Success Stories</a>
+                <a href="/ai-tools.html" class="btn-nav" onclick="trackEvent('nav_click', 'educator_login')">Educator Login</a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <div class="hero">
-        <h1>Don't just learn math. <span class="highlight">Math it!</span></h1>
-        <p class="tagline">Math it. Solve it. Own it.</p>
-        
-        <div class="verb-examples">
-            <div class="verb-card">
-                <div class="icon">💡</div>
-                <div class="phrase">"Just math it!"</div>
-                <div class="context">When facing any problem</div>
-            </div>
-            <div class="verb-card">
-                <div class="icon">🤝</div>
-                <div class="phrase">"Math together"</div>
-                <div class="context">Collaborative solving</div>
-            </div>
-            <div class="verb-card">
-                <div class="icon">💪</div>
-                <div class="phrase">"I mathed it!"</div>
-                <div class="context">Celebrating success</div>
-            </div>
-            <div class="verb-card">
-                <div class="icon">🎯</div>
-                <div class="phrase">"Math this out"</div>
-                <div class="context">Working through challenges</div>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">🚀 Free During Beta</div>
+            <h1>
+                Don't Just Learn Math.<br>
+                <span class="gradient-text">Math It!</span>
+            </h1>
+            <p>
+                AI-powered math challenges that connect abstract concepts to real life. 
+                Generate engaging problems in seconds. Transform how students see mathematics.
+            </p>
+            <div class="hero-buttons">
+                <a href="#demo" class="btn-primary" onclick="trackEvent('hero_click', 'try_demo')">
+                    Try AI Demo - No Signup
+                </a>
+                <a href="/firebase-app.html" class="btn-secondary" onclick="trackEvent('hero_click', 'start_free')">
+                    Start Free for Educators
+                </a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Quick Math Section -->
-        <div class="quick-math">
-            <h3>🚀 Quick Math - What do you want to math today?</h3>
-            <div class="math-input-group">
-                <input type="text" class="math-input" placeholder="Enter a real-world challenge (e.g., 'calculate loan payments')">
-                <button class="btn-primary">Math It!</button>
-            </div>
-            <div class="math-examples">
-                <div class="example-chip">💰 Compound interest</div>
-                <div class="example-chip">📊 Stock returns</div>
-                <div class="example-chip">🎮 Game probability</div>
-                <div class="example-chip">🏥 Medical test accuracy</div>
-                <div class="example-chip">💳 Credit card debt</div>
-                <div class="example-chip">🗳️ Voting systems</div>
-                <div class="example-chip">📈 Viral growth</div>
-            </div>
-        </div>
-
-        <!-- Stats -->
+    <!-- Stats Section -->
+    <section class="stats-section">
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number">10K+</div>
-                <div class="stat-label">Students Mathing Daily</div>
+                <div class="stat-number">1000+</div>
+                <div class="stat-label">Challenges Included</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">500+</div>
-                <div class="stat-label">Real-World Challenges</div>
+                <div class="stat-number">30 sec</div>
+                <div class="stat-label">To Generate</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">50+</div>
-                <div class="stat-label">Schools Mathing</div>
+                <div class="stat-number">+23%</div>
+                <div class="stat-label">Test Score Improvement</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">95%</div>
-                <div class="stat-label">"Finally Get It" Rate</div>
+                <div class="stat-number">8-18</div>
+                <div class="stat-label">Age Range</div>
             </div>
         </div>
+    </section>
 
-        <!-- Challenges Section -->
-        <div class="challenges-section">
+    <!-- Live Demo Section -->
+    <section class="demo-section" id="demo">
+        <div class="demo-container">
             <div class="section-header">
-                <h2>Featured Challenges to Math</h2>
-                <button class="btn-primary">Create Challenge</button>
+                <h2>See the AI Magic ✨</h2>
+                <p>Generate a real math challenge in seconds. No signup required.</p>
             </div>
-
-            <div class="challenge-grid">
-                <div class="challenge-card">
-                    <div class="challenge-header">
-                        <h3 class="challenge-title">Math Your Money</h3>
-                        <span class="difficulty-badge difficulty-easy">Easy</span>
+            
+            <div class="demo-box">
+                <form class="demo-form" id="demoForm">
+                    <div class="form-group">
+                        <label class="form-label">What topic should we math?</label>
+                        <input type="text" class="form-input" id="demoTopic" placeholder="e.g., Compound Interest, Probability, Statistics" required>
                     </div>
-                    <p class="challenge-description">
-                        Math out compound interest, credit cards, and loans. See why that $5 coffee costs $50 in retirement.
-                    </p>
-                    <a href="#" class="challenge-cta">
-                        Math this challenge →
-                    </a>
-                </div>
-
-                <div class="challenge-card">
-                    <div class="challenge-header">
-                        <h3 class="challenge-title">Math the Odds</h3>
-                        <span class="difficulty-badge difficulty-medium">Medium</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Real-world context?</label>
+                        <textarea class="form-textarea" id="demoContext" placeholder="e.g., Saving for a gaming console, Understanding social media algorithms, Planning a budget" rows="3" required></textarea>
                     </div>
-                    <p class="challenge-description">
-                        From medical tests to lottery tickets - math out real probabilities and never be fooled again.
-                    </p>
-                    <a href="#" class="challenge-cta">
-                        Math this challenge →
-                    </a>
-                </div>
-
-                <div class="challenge-card">
-                    <div class="challenge-header">
-                        <h3 class="challenge-title">Math Goes Viral</h3>
-                        <span class="difficulty-badge difficulty-medium">Medium</span>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Difficulty Level</label>
+                        <select class="form-select" id="demoDifficulty" required>
+                            <option value="easy">Easy (Ages 8-11)</option>
+                            <option value="medium">Medium (Ages 11-15)</option>
+                            <option value="hard">Hard (Ages 15-18)</option>
+                        </select>
                     </div>
-                    <p class="challenge-description">
-                        Math how content spreads, diseases transmit, and trends explode. Master exponential growth.
-                    </p>
-                    <a href="#" class="challenge-cta">
-                        Math this challenge →
-                    </a>
-                </div>
-
-                <div class="challenge-card">
-                    <div class="challenge-header">
-                        <h3 class="challenge-title">Math the Game</h3>
-                        <span class="difficulty-badge difficulty-hard">Hard</span>
-                    </div>
-                    <p class="challenge-description">
-                        Use game theory to math out strategies in sports, business, and life. Win before you play.
-                    </p>
-                    <a href="#" class="challenge-cta">
-                        Math this challenge →
-                    </a>
-                </div>
-
-                <div class="challenge-card">
-                    <div class="challenge-header">
-                        <h3 class="challenge-title">Math the Algorithm</h3>
-                        <span class="difficulty-badge difficulty-hard">Hard</span>
-                    </div>
-                    <p class="challenge-description">
-                        Understand how AI and algorithms work. Math out bias, recommendations, and decision systems.
-                    </p>
-                    <a href="#" class="challenge-cta">
-                        Math this challenge →
-                    </a>
-                </div>
-
-                <div class="challenge-card">
-                    <div class="challenge-header">
-                        <h3 class="challenge-title">Math Your Future</h3>
-                        <span class="difficulty-badge difficulty-easy">Easy</span>
-                    </div>
-                    <p class="challenge-description">
-                        Career paths, college costs, retirement planning - math out life's biggest decisions with confidence.
-                    </p>
-                    <a href="#" class="challenge-cta">
-                        Math this challenge →
-                    </a>
+                    
+                    <button type="submit" class="btn-primary" style="width: 100%;">
+                        Generate Math Challenge with AI 🚀
+                    </button>
+                </form>
+                
+                <div class="spinner" id="demoSpinner"></div>
+                
+                <div class="demo-result" id="demoResult">
+                    <!-- AI Generated content will appear here -->
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="section-header">
+            <h2>Why Educators Love MathIt.ai</h2>
+            <p>Everything you need to make math relevant and engaging</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">AI-Powered Generation</h3>
+                <p class="feature-description">
+                    Create comprehensive math challenges with steps, hints, and solutions in under 30 seconds. 
+                    Save hours of prep time.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Real-World Relevance</h3>
+                <p class="feature-description">
+                    Every challenge connects to things students care about - gaming, social media, money, sports. 
+                    They finally understand "when will I use this?"
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Complete Curriculum</h3>
+                <p class="feature-description">
+                    Covers probability, statistics, financial math, game theory, calculus, and more. 
+                    Aligned with standards but way more engaging.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3 class="feature-title">Student Dashboard</h3>
+                <p class="feature-description">
+                    Students track progress, earn badges, and compete on leaderboards. 
+                    Gamification that actually motivates learning.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3 class="feature-title">Analytics & Insights</h3>
+                <p class="feature-description">
+                    See where students struggle, track completion rates, and identify knowledge gaps. 
+                    Data-driven teaching made simple.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3 class="feature-title">Incredible Value</h3>
+                <p class="feature-description">
+                    Access 1000+ pre-built challenges and generate unlimited new ones with AI. 
+                    Free during beta, then just $9.99/month for everything.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" id="testimonials">
+        <div class="section-header">
+            <h2>Educators Are Raving</h2>
+            <p>Join hundreds of teachers transforming math education</p>
+        </div>
+        
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-text">
+                    "My students actually ask for MORE math problems now. 
+                    The real-world connections finally make everything click. 
+                    This is the future of math education."
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">SK</div>
+                    <div class="author-info">
+                        <div class="author-name">Sarah Kim</div>
+                        <div class="author-title">8th Grade Math Teacher</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">
+                    "I save hours every week on lesson planning. 
+                    The AI generates better problems than I could create myself, 
+                    and my kids are more engaged than ever."
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">MJ</div>
+                    <div class="author-info">
+                        <div class="author-name">Marcus Johnson</div>
+                        <div class="author-title">Homeschool Parent</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">
+                    "The credit card debt challenge opened my students' eyes. 
+                    They're learning math AND life skills. 
+                    Worth every penny (but it's free during beta!)"
+                </p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">ER</div>
+                    <div class="author-info">
+                        <div class="author-name">Emily Rodriguez</div>
+                        <div class="author-title">High School Educator</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to Transform Your Math Classroom?</h2>
+            <p>
+                Join the beta and get unlimited access completely free. 
+                No credit card required.
+            </p>
+            <a href="/firebase-app.html" class="btn-cta" onclick="trackEvent('cta_click', 'start_teaching')">
+                Start Teaching with AI Today
+            </a>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer>
         <div class="footer-content">
-            <div class="footer-tagline">Ready to math it?</div>
-            <p style="color: #94a3b8; margin-bottom: 2rem;">
-                Join thousands of students who stopped fearing math and started mathing it.
-            </p>
-            <button class="btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">
-                Start Mathing - It's Free!
-            </button>
-            <div class="footer-links">
-                <a href="#">About</a>
-                <a href="#">Educators</a>
-                <a href="#">Parents</a>
-                <a href="#">Contact</a>
-                <a href="#">Blog</a>
+            <div class="footer-section">
+                <h4>Product</h4>
+                <a href="/ai-tools.html">AI Challenge Generator</a>
+                <a href="/firebase-app.html">Educator Portal</a>
+                <a href="/student-dashboard.html">Student Dashboard</a>
+                <a href="#demo">Try Demo</a>
             </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <a href="#">Tutorial Videos</a>
+                <a href="#">Sample Challenges</a>
+                <a href="#">Teaching Guide</a>
+                <a href="#">API Documentation</a>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <a href="#">About</a>
+                <a href="#">Blog</a>
+                <a href="#">Contact</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <a href="#">Twitter</a>
+                <a href="#">Facebook</a>
+                <a href="#">LinkedIn</a>
+                <a href="#">support@mathit.ai</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 MathIt.ai - Making Math a Verb. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
-        // Example chip interactions
-        document.querySelectorAll('.example-chip').forEach(chip => {
-            chip.addEventListener('click', function() {
-                const text = this.textContent.substring(2); // Remove emoji
-                document.querySelector('.math-input').value = text;
-            });
+        // Analytics tracking
+        function trackEvent(category, action, label = null, value = null) {
+            if (typeof gtag !== 'undefined') {
+                gtag('event', action, {
+                    'event_category': category,
+                    'event_label': label,
+                    'value': value
+                });
+            }
+            console.log('Event tracked:', category, action);
+        }
+
+        // Demo Form Handler
+        document.getElementById('demoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const topic = document.getElementById('demoTopic').value;
+            const context = document.getElementById('demoContext').value;
+            const difficulty = document.getElementById('demoDifficulty').value;
+            
+            // Track demo attempt
+            trackEvent('demo', 'generate_attempt', topic);
+            
+            // Show spinner
+            document.getElementById('demoSpinner').classList.add('active');
+            document.getElementById('demoResult').classList.remove('active');
+            
+            // Simulate API call with timeout
+            setTimeout(() => {
+                displayFallbackDemo();
+                document.getElementById('demoSpinner').classList.remove('active');
+                trackEvent('demo', 'generate_success', topic);
+            }, 2000);
         });
 
-        // Verb card interactions
-        document.querySelectorAll('.verb-card').forEach(card => {
-            card.addEventListener('click', function() {
-                this.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    this.style.transform = '';
-                }, 200);
-            });
-        });
+        function displayDemoResult(challenge) {
+            const resultDiv = document.getElementById('demoResult');
+            resultDiv.innerHTML = `
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">✨ AI Generated Challenge</h3>
+                <h4 style="font-size: 1.5rem; margin-bottom: 0.5rem;">${challenge.title}</h4>
+                <p style="color: var(--gray); margin-bottom: 1rem;">${challenge.description}</p>
+                
+                <div style="background: var(--light); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                    <strong>Problem:</strong><br>
+                    ${challenge.problem}
+                </div>
+                
+                <h5 style="margin-bottom: 0.5rem;">Solution Steps:</h5>
+                ${challenge.steps.map(step => `
+                    <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: #f8f9fa; border-radius: 5px;">
+                        <strong>Step ${step.stepNumber}:</strong> ${step.instruction}
+                    </div>
+                `).join('')}
+                
+                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--secondary); color: white; border-radius: 10px; text-align: center;">
+                    <strong>🎉 This challenge was generated in seconds!</strong><br>
+                    <a href="/firebase-app.html" style="color: white; text-decoration: underline;">
+                        Create unlimited challenges as an educator →
+                    </a>
+                </div>
+            `;
+            resultDiv.classList.add('active');
+        }
 
-        // Challenge card hover effects
-        document.querySelectorAll('.challenge-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.querySelector('.challenge-cta').style.gap = '1rem';
-            });
-            card.addEventListener('mouseleave', function() {
-                this.querySelector('.challenge-cta').style.gap = '0.5rem';
-            });
-        });
+        function displayFallbackDemo() {
+            const resultDiv = document.getElementById('demoResult');
+            resultDiv.innerHTML = `
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">✨ Sample AI Generated Challenge</h3>
+                <h4 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Math Your Money: Compound Interest</h4>
+                <p style="color: var(--gray); margin-bottom: 1rem;">Learn how money grows over time!</p>
+                
+                <div style="background: var(--light); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                    <strong>Problem:</strong><br>
+                    You save $100 at 5% annual interest. How much will you have after 2 years?
+                </div>
+                
+                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--secondary); color: white; border-radius: 10px; text-align: center;">
+                    <strong>🎉 AI generates complete solutions with steps!</strong><br>
+                    <a href="/firebase-app.html" style="color: white; text-decoration: underline;">
+                        Try it yourself - Free for educators →
+                    </a>
+                </div>
+            `;
+            resultDiv.classList.add('active');
+        }
 
-        // Simple routing simulation
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', function(e) {
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                console.log('Navigate to:', this.textContent);
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
+        });
+
+        // Track page load
+        window.addEventListener('load', () => {
+            trackEvent('page_view', 'landing_page');
         });
     </script>
 </body>
