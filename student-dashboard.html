@@ -13,8 +13,7 @@
     <script src="js/firebase-config.js"></script>
     
     <!-- Math Rendering -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/startup.js"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <!-- Chart for Progress -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -798,9 +797,9 @@
                     <h1>Ready to Math It, Sarah? 🚀</h1>
                     <p>You're on fire! Keep your streak going with today's challenges.</p>
                 </div>
-                <div class="daily-challenge-card" onclick="startDailyChallenge()">
+                <div class="daily-challenge-card" onclick="loadRandomChallenge()">
                     <h3>🎯 Daily Challenge</h3>
-                    <p>Compound Interest Mystery</p>
+                    <p>Random Math Challenge</p>
                     <p style="font-size: 1.2rem; margin-top: 0.5rem;">+100 bonus points!</p>
                 </div>
             </div>
@@ -843,12 +842,14 @@
                     </div>
                 </div>
 
-              <div class="assignments-list" id="assignmentsList">
-    <!-- Challenges will load here from Firebase -->
-    <div style="text-align: center; padding: 2rem;">
-        <p>Loading challenges...</p>
-    </div>
-</div>
+                <div class="assignments-list" id="assignmentsList">
+                    <!-- Challenges will load here from Firebase -->
+                    <div style="text-align: center; padding: 2rem;">
+                        <p>Loading challenges...</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Progress Section -->
             <div class="progress-section">
                 <h3 style="margin-bottom: 1.5rem; text-align: center;">Your Progress</h3>
@@ -909,7 +910,7 @@
     <div class="problem-modal" id="problemModal">
         <div class="problem-container">
             <div class="problem-header">
-                <h2 class="problem-title" id="problemTitle">The Credit Card Trap</h2>
+                <h2 class="problem-title" id="problemTitle">Math Challenge</h2>
                 <div class="problem-controls">
                     <button class="hint-btn" onclick="showHint()">💡 Hint (3 left)</button>
                     <button class="close-problem-btn" onclick="closeProblem()">✕ Close</button>
@@ -917,7 +918,7 @@
             </div>
 
             <!-- Step Tracker -->
-            <div class="step-tracker">
+            <div class="step-tracker" id="stepTracker">
                 <div class="step-dot active" id="step1">1</div>
                 <div class="step-dot" id="step2">2</div>
                 <div class="step-dot" id="step3">3</div>
@@ -929,19 +930,11 @@
                 <div class="problem-statement">
                     <h3>The Challenge</h3>
                     <div class="problem-text" id="problemText">
-                        <p><strong>Scenario:</strong> You just bought a new gaming laptop for $1,000 using a credit card with:</p>
-                        <ul style="margin: 1rem 0; padding-left: 1.5rem;">
-                            <li>18% Annual Percentage Rate (APR)</li>
-                            <li>Minimum payment: 2% of balance or $25 (whichever is greater)</li>
-                        </ul>
-                        <p><strong>Your Mission:</strong> Calculate how much you'll ACTUALLY pay if you only make minimum payments.</p>
-                        <p style="margin-top: 1rem; color: var(--primary); font-weight: 600;">
-                            Step 1: Calculate the monthly interest rate
-                        </p>
+                        <p>Loading challenge...</p>
                     </div>
 
                     <div class="hint-box" id="hintBox">
-                        💡 <strong>Hint:</strong> To get the monthly rate, divide the annual rate by 12. Remember to convert percentage to decimal!
+                        💡 <strong>Hint:</strong> Think about the problem carefully!
                     </div>
                 </div>
 
@@ -958,9 +951,6 @@
 
                     <div class="workspace-area" contenteditable="true" id="workspace">
                         Start your calculations here...
-                        
-                        Annual rate = 18%
-                        Monthly rate = ?
                     </div>
 
                     <div class="answer-section">
@@ -968,7 +958,7 @@
                             Enter your answer:
                         </label>
                         <input type="text" class="answer-input" id="answerInput" 
-                               placeholder="Enter the monthly interest rate as a decimal">
+                               placeholder="Enter your answer">
                         <button class="submit-btn" onclick="checkAnswer()">
                             Submit Answer
                         </button>
@@ -981,141 +971,187 @@
     </div>
 
     <script>
-       // Firebase is already configured in js/firebase-config.js
-// Load real challenges from Firebase
-async function loadChallenges() {
-    try {
-        const challengesDiv = document.getElementById('assignmentsList');
+        // Firebase is already configured in js/firebase-config.js
         
-        // Get published challenges from Firestore
-        const snapshot = await db.collection('challenges')
-            .limit(10)
-            .get();
-        
-        if (snapshot.empty) {
-            challengesDiv.innerHTML = '<p style="padding: 2rem; text-align: center;">No challenges available yet. Ask your teacher to create some!</p>';
-            return;
-        }
-        
-        let html = '';
-        snapshot.forEach(doc => {
-            const challenge = doc.data();
-            const difficulty = challenge.difficulty || 'medium';
-            const difficultyClass = difficulty === 'easy' ? '🟢' : difficulty === 'hard' ? '🔴' : '🟡';
-            
-            html += `
-                <div class="assignment-card" onclick="startChallenge('${doc.id}')">
-                    <div class="assignment-header">
-                        <h3 class="assignment-title">${challenge.title || 'Math Challenge'}</h3>
-                        <span class="assignment-points">${challenge.points || 250} pts</span>
-                    </div>
-                    <div class="assignment-meta">
-                        <span class="meta-item">📊 ${challenge.topic || 'Math'}</span>
-                        <span class="meta-item">⏱️ 15 mins</span>
-                        <span class="meta-item">${difficultyClass} ${difficulty}</span>
-                    </div>
-                    <p class="assignment-description">
-                        ${challenge.description || challenge.problem || 'Solve this real-world math challenge!'}
-                    </p>
-                    <div class="assignment-footer">
-                        <span class="due-date">Available Now</span>
-                        <button class="start-btn">Math It!</button>
-                    </div>
-                </div>
-            `;
-        });
-        
-        challengesDiv.innerHTML = html || '<p>No challenges found</p>';
-    } catch (error) {
-        console.error('Error loading challenges:', error);
-        document.getElementById('assignmentsList').innerHTML = '<p>Error loading challenges. Please refresh.</p>';
-    }
-}
-
-// Load challenges when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(loadChallenges, 1000); // Wait for Firebase to initialize
-});
-        // Current challenge state
+        // Global variables
         let currentChallenge = null;
+        let currentChallengeData = null;
         let currentStep = 1;
         let hintsUsed = 0;
         let startTime = null;
+        let allChallenges = [];
 
-        // Start a challenge
-        function startChallenge(challengeId) {
-            currentChallenge = challengeId;
-            currentStep = 1;
-            hintsUsed = 0;
-            startTime = Date.now();
-            
-            document.getElementById('problemModal').classList.add('active');
-            document.getElementById('workspace').innerHTML = `Start your calculations here...
-            
-Annual rate = 18%
-Monthly rate = ?`;
-            
-            updateStepTracker();
-            loadStep(1);
-        }
-
-        // Start daily challenge
-        function startDailyChallenge() {
-            startChallenge('daily-compound');
-        }
-
-        // Load step content
-        function loadStep(stepNumber) {
-            const steps = {
-                1: {
-                    text: `<p><strong>Step 1: Calculate the monthly interest rate</strong></p>
-                           <p>The credit card has an 18% APR. To find the monthly rate, divide by 12.</p>`,
-                    hint: "To get the monthly rate, divide 18% by 12. Remember: 18% = 0.18",
-                    answer: "0.015"
-                },
-                2: {
-                    text: `<p><strong>Step 2: Calculate first month's interest</strong></p>
-                           <p>On your $1,000 balance, how much interest will you pay in the first month?</p>`,
-                    hint: "Multiply the balance ($1,000) by the monthly interest rate you found in Step 1",
-                    answer: "15"
-                },
-                3: {
-                    text: `<p><strong>Step 3: Calculate the minimum payment</strong></p>
-                           <p>The minimum payment is 2% of the balance or $25 (whichever is greater). What's your first payment?</p>`,
-                    hint: "2% of $1,000 = $20, but the minimum is $25, so...",
-                    answer: "25"
-                },
-                4: {
-                    text: `<p><strong>Step 4: The Big Picture</strong></p>
-                           <p>If you continue making only minimum payments, you'll pay approximately $1,396 total over 5.5 years!</p>
-                           <p>How much EXTRA did you pay in interest?</p>`,
-                    hint: "Total paid - Original purchase = Interest paid",
-                    answer: "396"
+        // Load real challenges from Firebase
+        async function loadChallenges() {
+            console.log('Loading challenges from Firebase...');
+            try {
+                const challengesDiv = document.getElementById('assignmentsList');
+                
+                // Get challenges from Firestore
+                const snapshot = await db.collection('challenges')
+                    .limit(10)
+                    .get();
+                
+                console.log(`Found ${snapshot.size} challenges`);
+                
+                if (snapshot.empty) {
+                    challengesDiv.innerHTML = '<p style="padding: 2rem; text-align: center;">No challenges available yet. Ask your teacher to create some!</p>';
+                    return;
                 }
-            };
+                
+                let html = '';
+                allChallenges = []; // Store for random selection
+                
+                snapshot.forEach(doc => {
+                    const challenge = doc.data();
+                    allChallenges.push({ id: doc.id, ...challenge });
+                    
+                    const difficulty = challenge.difficulty || 'medium';
+                    const difficultyClass = difficulty === 'easy' ? '🟢' : difficulty === 'hard' ? '🔴' : '🟡';
+                    const points = challenge.points || '10';
+                    
+                    html += `
+                        <div class="assignment-card" onclick="startChallenge('${doc.id}')">
+                            <div class="assignment-header">
+                                <h3 class="assignment-title">${challenge.title || 'Math Challenge'}</h3>
+                                <span class="assignment-points">${points} pts</span>
+                            </div>
+                            <div class="assignment-meta">
+                                <span class="meta-item">📊 ${challenge.topic || 'Math'}</span>
+                                <span class="meta-item">⏱️ ${challenge.estimatedTime || '15 mins'}</span>
+                                <span class="meta-item">${difficultyClass} ${difficulty}</span>
+                            </div>
+                            <p class="assignment-description">
+                                ${challenge.description || challenge.problem || 'Solve this real-world math challenge!'}
+                            </p>
+                            <div class="assignment-footer">
+                                <span class="due-date">Available Now</span>
+                                <button class="start-btn" onclick="event.stopPropagation(); startChallenge('${doc.id}')">Math It!</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                challengesDiv.innerHTML = html || '<p>No challenges found</p>';
+                console.log('Challenges loaded successfully');
+                
+            } catch (error) {
+                console.error('Error loading challenges:', error);
+                document.getElementById('assignmentsList').innerHTML = '<p style="padding: 2rem; text-align: center;">Error loading challenges. Please refresh the page.</p>';
+            }
+        }
 
-            const step = steps[stepNumber];
-            document.getElementById('problemText').innerHTML = step.text;
-            document.getElementById('hintBox').innerHTML = `💡 <strong>Hint:</strong> ${step.hint}`;
+        // Start a challenge from Firebase
+        async function startChallenge(challengeId) {
+            console.log('Starting challenge:', challengeId);
+            
+            try {
+                // Get the challenge data from Firebase
+                const doc = await db.collection('challenges').doc(challengeId).get();
+                
+                if (!doc.exists) {
+                    alert('Challenge not found!');
+                    return;
+                }
+                
+                const challenge = doc.data();
+                currentChallenge = challengeId;
+                currentChallengeData = challenge;
+                currentStep = 1;
+                hintsUsed = 0;
+                startTime = Date.now();
+                
+                // Update the modal with real challenge data
+                document.getElementById('problemTitle').textContent = challenge.title || 'Math Challenge';
+                
+                // Show the modal
+                document.getElementById('problemModal').classList.add('active');
+                
+                // Display the problem
+                const problemText = document.getElementById('problemText');
+                problemText.innerHTML = `
+                    <p><strong>Challenge:</strong> ${challenge.title}</p>
+                    <p><strong>Problem:</strong></p>
+                    <p>${challenge.problem || challenge.description}</p>
+                    ${challenge.steps && challenge.steps.length > 0 ? '<p><strong>Your Mission:</strong> Work through each step to solve this problem!</p>' : ''}
+                `;
+                
+                // If challenge has steps, use them
+                if (challenge.steps && challenge.steps.length > 0) {
+                    // Update step tracker
+                    const stepTracker = document.getElementById('stepTracker');
+                    stepTracker.innerHTML = '';
+                    challenge.steps.forEach((step, index) => {
+                        stepTracker.innerHTML += `
+                            <div class="step-dot ${index === 0 ? 'active' : ''}" id="step${index + 1}">
+                                ${index + 1}
+                            </div>
+                        `;
+                    });
+                    
+                    // Load first step
+                    loadChallengeStep(challenge, 1);
+                } else {
+                    // No steps, just show the problem
+                    document.getElementById('hintBox').innerHTML = `
+                        💡 <strong>Hint:</strong> ${challenge.hint || 'Think about the problem carefully!'}
+                    `;
+                }
+                
+                // Clear workspace
+                document.getElementById('workspace').innerHTML = `Start your calculations here...
+                
+Problem: ${challenge.problem || challenge.description}`;
+                
+                // Clear answer input
+                document.getElementById('answerInput').value = '';
+                
+            } catch (error) {
+                console.error('Error loading challenge:', error);
+                alert('Error loading challenge. Please try again.');
+            }
+        }
+
+        // Load a specific step of the challenge
+        function loadChallengeStep(challenge, stepNumber) {
+            if (!challenge.steps || stepNumber > challenge.steps.length) {
+                completedChallenge();
+                return;
+            }
+            
+            const step = challenge.steps[stepNumber - 1];
+            const problemText = document.getElementById('problemText');
+            
+            problemText.innerHTML = `
+                <p><strong>Step ${stepNumber}:</strong> ${step.instruction || step.description || 'Complete this step'}</p>
+            `;
+            
+            document.getElementById('hintBox').innerHTML = `
+                💡 <strong>Hint:</strong> ${step.hint || 'Think about this step carefully!'}
+            `;
+            
             document.getElementById('answerInput').value = '';
-            document.getElementById('feedbackMessage').classList.remove('success', 'error');
-            document.getElementById('feedbackMessage').style.display = 'none';
+            document.getElementById('answerInput').placeholder = step.expectedAnswer ? 
+                'Enter your answer' : 'Explain your solution';
+            
+            currentStep = stepNumber;
+            updateStepTracker();
         }
 
         // Update step tracker
         function updateStepTracker() {
-            for (let i = 1; i <= 4; i++) {
-                const dot = document.getElementById(`step${i}`);
-                if (i < currentStep) {
+            const steps = document.querySelectorAll('.step-dot');
+            steps.forEach((dot, index) => {
+                if (index + 1 < currentStep) {
                     dot.classList.add('completed');
                     dot.classList.remove('active');
-                } else if (i === currentStep) {
+                } else if (index + 1 === currentStep) {
                     dot.classList.add('active');
                     dot.classList.remove('completed');
                 } else {
                     dot.classList.remove('active', 'completed');
                 }
-            }
+            });
         }
 
         // Show hint
@@ -1140,41 +1176,34 @@ Monthly rate = ?`;
             const answer = document.getElementById('answerInput').value.trim();
             const feedback = document.getElementById('feedbackMessage');
             
-            // Simple answer checking (in real app, would be more sophisticated)
-            const correctAnswers = {
-                1: ['0.015', '1.5%', '0.015'],
-                2: ['15', '$15', '15.00'],
-                3: ['25', '$25', '25.00'],
-                4: ['396', '$396', '396.00']
-            };
-
-            const isCorrect = correctAnswers[currentStep].some(a => 
-                answer.toLowerCase().replace('$', '').replace('%', '') === a.replace('$', '').replace('%', '')
-            );
-
-            if (isCorrect) {
-                feedback.className = 'feedback-message success';
-                feedback.textContent = '🎉 Correct! Great job mathing that!';
-                feedback.style.display = 'block';
-
-                // Mark step as completed
-                document.getElementById(`step${currentStep}`).classList.add('completed');
-                
-                // Move to next step after delay
-                setTimeout(() => {
-                    if (currentStep < 4) {
-                        currentStep++;
-                        updateStepTracker();
-                        loadStep(currentStep);
-                    } else {
-                        completedChallenge();
-                    }
-                }, 2000);
-            } else {
+            if (!answer) {
                 feedback.className = 'feedback-message error';
-                feedback.textContent = '❌ Not quite right. Try again or use a hint!';
+                feedback.textContent = '⚠️ Please enter an answer!';
                 feedback.style.display = 'block';
+                return;
             }
+            
+            // For now, accept any answer and move to next step
+            feedback.className = 'feedback-message success';
+            feedback.textContent = '🎉 Good work! Moving to next step...';
+            feedback.style.display = 'block';
+            
+            // Mark step as completed
+            if (document.getElementById(`step${currentStep}`)) {
+                document.getElementById(`step${currentStep}`).classList.add('completed');
+            }
+            
+            // Move to next step after delay
+            setTimeout(() => {
+                if (currentChallengeData && currentChallengeData.steps && currentStep < currentChallengeData.steps.length) {
+                    currentStep++;
+                    updateStepTracker();
+                    loadChallengeStep(currentChallengeData, currentStep);
+                    feedback.style.display = 'none';
+                } else {
+                    completedChallenge();
+                }
+            }, 1500);
         }
 
         // Complete challenge
@@ -1184,8 +1213,8 @@ Monthly rate = ?`;
             
             alert(`🎉 Challenge Complete!\n\nTime: ${timeTaken} seconds\nHints Used: ${hintsUsed}\nPoints Earned: ${points}`);
             
-            // Save to Firebase
-            if (auth.currentUser) {
+            // Save to Firebase if user is authenticated
+            if (window.auth && auth.currentUser) {
                 db.collection('completions').add({
                     userId: auth.currentUser.uid,
                     challengeId: currentChallenge,
@@ -1193,7 +1222,7 @@ Monthly rate = ?`;
                     timeTaken: timeTaken,
                     hintsUsed: hintsUsed,
                     points: points
-                });
+                }).catch(error => console.error('Error saving completion:', error));
             }
             
             closeProblem();
@@ -1203,8 +1232,26 @@ Monthly rate = ?`;
         function closeProblem() {
             document.getElementById('problemModal').classList.remove('active');
             currentChallenge = null;
+            currentChallengeData = null;
             currentStep = 1;
             hintsUsed = 0;
+            
+            // Hide hint box
+            document.getElementById('hintBox').classList.remove('visible');
+            
+            // Clear feedback
+            document.getElementById('feedbackMessage').style.display = 'none';
+        }
+
+        // Load random challenge for daily challenge
+        function loadRandomChallenge() {
+            if (allChallenges.length > 0) {
+                const randomIndex = Math.floor(Math.random() * allChallenges.length);
+                const randomChallenge = allChallenges[randomIndex];
+                startChallenge(randomChallenge.id);
+            } else {
+                alert('No challenges available yet!');
+            }
         }
 
         // Initialize MathJax
@@ -1214,6 +1261,15 @@ Monthly rate = ?`;
                 displayMath: [['$$', '$$'], ['\\[', '\\]']]
             }
         };
+
+        // Load challenges when page is ready
+        window.addEventListener('load', function() {
+            console.log('Page loaded, waiting for Firebase...');
+            setTimeout(function() {
+                console.log('Loading challenges...');
+                loadChallenges();
+            }, 2000); // Wait 2 seconds for Firebase to initialize
+        });
     </script>
 </body>
 </html>
