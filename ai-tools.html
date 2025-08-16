@@ -603,9 +603,20 @@
             alert('Opening editor...');
         }
 
-        function publishChallenge(id) {
-            alert('Challenge published! Students can now access it.');
-        }
+function publishChallenge(id) {
+    if (confirm('Publish this challenge for all students?')) {
+        db.collection('challenges').doc(id).update({
+            published: true,
+            publishedAt: new Date(),
+            status: 'published'
+        }).then(() => {
+            alert('✅ Challenge published! Students can now see it in their dashboard.');
+        }).catch(error => {
+            console.error('Error:', error);
+            alert('Error publishing. Please try again.');
+        });
+    }
+}
 
         function generateBulkContent() {
             if (confirm('This will generate 30 challenges and use approximately $0.50 in AI credits. Continue?')) {

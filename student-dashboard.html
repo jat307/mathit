@@ -843,69 +843,12 @@
                     </div>
                 </div>
 
-                <div class="assignments-list">
-                    <!-- Assignment 1 -->
-                    <div class="assignment-card" onclick="startChallenge('credit-card')">
-                        <div class="assignment-header">
-                            <h3 class="assignment-title">The Credit Card Trap</h3>
-                            <span class="assignment-points">250 pts</span>
-                        </div>
-                        <div class="assignment-meta">
-                            <span class="meta-item">📊 Financial Math</span>
-                            <span class="meta-item">⏱️ 15 mins</span>
-                            <span class="meta-item">📈 Medium</span>
-                        </div>
-                        <p class="assignment-description">
-                            Calculate the true cost of minimum payments on a $1,000 purchase. See how interest compounds!
-                        </p>
-                        <div class="assignment-footer">
-                            <span class="due-date">Due: Tomorrow</span>
-                            <button class="start-btn">Math It!</button>
-                        </div>
-                    </div>
-
-                    <!-- Assignment 2 -->
-                    <div class="assignment-card" onclick="startChallenge('viral-spread')">
-                        <div class="assignment-header">
-                            <h3 class="assignment-title">Viral Video Mathematics</h3>
-                            <span class="assignment-points">300 pts</span>
-                        </div>
-                        <div class="assignment-meta">
-                            <span class="meta-item">📈 Statistics</span>
-                            <span class="meta-item">⏱️ 20 mins</span>
-                            <span class="meta-item">🔥 Hard</span>
-                        </div>
-                        <p class="assignment-description">
-                            Model how a TikTok video goes viral using exponential growth. Predict views after 48 hours!
-                        </p>
-                        <div class="assignment-footer">
-                            <span class="due-date">Due: Friday</span>
-                            <button class="start-btn">Math It!</button>
-                        </div>
-                    </div>
-
-                    <!-- Assignment 3 -->
-                    <div class="assignment-card" onclick="startChallenge('game-theory')">
-                        <div class="assignment-header">
-                            <h3 class="assignment-title">Battle Royale Strategy</h3>
-                            <span class="assignment-points">200 pts</span>
-                        </div>
-                        <div class="assignment-meta">
-                            <span class="meta-item">🎮 Game Theory</span>
-                            <span class="meta-item">⏱️ 10 mins</span>
-                            <span class="meta-item">🟢 Easy</span>
-                        </div>
-                        <p class="assignment-description">
-                            Use probability to determine the best landing spot in your favorite battle royale game.
-                        </p>
-                        <div class="assignment-footer">
-                            <span class="due-date">Due: Next Week</span>
-                            <button class="start-btn">Math It!</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+              <div class="assignments-list" id="assignmentsList">
+    <!-- Challenges will load here from Firebase -->
+    <div style="text-align: center; padding: 2rem;">
+        <p>Loading challenges...</p>
+    </div>
+</div>
             <!-- Progress Section -->
             <div class="progress-section">
                 <h3 style="margin-bottom: 1.5rem; text-align: center;">Your Progress</h3>
@@ -1039,7 +982,60 @@
 
     <script>
        // Firebase is already configured in js/firebase-config.js
+// Load real challenges from Firebase
+async function loadChallenges() {
+    try {
+        const challengesDiv = document.getElementById('assignmentsList');
+        
+        // Get published challenges from Firestore
+        const snapshot = await db.collection('challenges')
+            .limit(10)
+            .get();
+        
+        if (snapshot.empty) {
+            challengesDiv.innerHTML = '<p style="padding: 2rem; text-align: center;">No challenges available yet. Ask your teacher to create some!</p>';
+            return;
+        }
+        
+        let html = '';
+        snapshot.forEach(doc => {
+            const challenge = doc.data();
+            const difficulty = challenge.difficulty || 'medium';
+            const difficultyClass = difficulty === 'easy' ? '🟢' : difficulty === 'hard' ? '🔴' : '🟡';
+            
+            html += `
+                <div class="assignment-card" onclick="startChallenge('${doc.id}')">
+                    <div class="assignment-header">
+                        <h3 class="assignment-title">${challenge.title || 'Math Challenge'}</h3>
+                        <span class="assignment-points">${challenge.points || 250} pts</span>
+                    </div>
+                    <div class="assignment-meta">
+                        <span class="meta-item">📊 ${challenge.topic || 'Math'}</span>
+                        <span class="meta-item">⏱️ 15 mins</span>
+                        <span class="meta-item">${difficultyClass} ${difficulty}</span>
+                    </div>
+                    <p class="assignment-description">
+                        ${challenge.description || challenge.problem || 'Solve this real-world math challenge!'}
+                    </p>
+                    <div class="assignment-footer">
+                        <span class="due-date">Available Now</span>
+                        <button class="start-btn">Math It!</button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        challengesDiv.innerHTML = html || '<p>No challenges found</p>';
+    } catch (error) {
+        console.error('Error loading challenges:', error);
+        document.getElementById('assignmentsList').innerHTML = '<p>Error loading challenges. Please refresh.</p>';
+    }
+}
 
+// Load challenges when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(loadChallenges, 1000); // Wait for Firebase to initialize
+});
         // Current challenge state
         let currentChallenge = null;
         let currentStep = 1;
