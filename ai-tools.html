@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathIt! AI Tools - Instant Challenge Creation</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5B47FB;
+            --primary-dark: #4936E8;
+            --secondary: #00D4AA;
+            --accent: #FFB800;
+            --success: #10B981;
+            --dark: #1a1a2e;
+            --gray: #64748b;
+            --light: #f1f5f9;
+            --gradient: linear-gradient(135deg, #5B47FB 0%, #00D4AA 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #5B47FB08 0%, #00D4AA08 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--gray);
+            font-size: 1.2rem;
+        }
+
+        /* AI Tool Cards */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .tool-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--light);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 71, 251, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(91, 71, 251, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Generated Content Display */
+        .results-section {
+            display: none;
+            margin-top: 3rem;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            background: var(--light);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .step-item {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--gradient);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        /* Usage Stats */
+        .stats-bar {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 MathIt! AI Assistant</h1>
+            <p>Create engaging math challenges in seconds with AI</p>
+        </div>
+
+        <!-- Usage Stats -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="challengesGenerated">0</div>
+                <div class="stat-label">Challenges Created</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="timeSaved">0h</div>
+                <div class="stat-label">Time Saved</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="aiCredits">$50.00</div>
+                <div class="stat-label">AI Credits</div>
+            </div>
+        </div>
+
+        <!-- AI Tools -->
+        <div class="tools-grid">
+            <!-- Quick Challenge Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">⚡</div>
+                    <h2 class="tool-title">Quick Challenge</h2>
+                </div>
+                <form id="quickChallengeForm">
+                    <div class="form-group">
+                        <label class="form-label">Math Topic</label>
+                        <input type="text" class="form-input" id="topic" 
+                               placeholder="e.g., Compound Interest, Probability">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Real-World Context</label>
+                        <textarea class="form-textarea" id="context" 
+                                  placeholder="e.g., Saving for a gaming PC, Understanding TikTok algorithm"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Difficulty</label>
+                        <select class="form-select" id="difficulty">
+                            <option value="easy">Easy (10-12 years)</option>
+                            <option value="medium">Medium (12-14 years)</option>
+                            <option value="hard">Hard (14-17 years)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="generate-btn">
+                        Generate Challenge 🚀
+                    </button>
+                    <div class="loading" id="quickLoading">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 0.5rem; color: var(--gray);">AI is creating your challenge...</p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Student Problem Matcher -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">🎯</div>
+                    <h2 class="tool-title">Problem Matcher</h2>
+                </div>
+                <form id="matcherForm">
+                    <div class="form-group">
+                        <label class="form-label">Student's Question</label>
+                        <textarea class="form-textarea" id="studentQuery" 
+                                  placeholder="e.g., 'How much money do I need to save for a car?'"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Grade Level</label>
+                        <select class="form-select" id="gradeLevel">
+                            <option value="6">6th Grade</option>
+                            <option value="7">7th Grade</option>
+                            <option value="8">8th Grade</option>
+                            <option value="9">9th Grade</option>
+                            <option value="10">10th Grade</option>
+                            <option value="11">11th Grade</option>
+                            <option value="12">12th Grade</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="generate-btn">
+                        Find Math Connections 🔍
+                    </button>
+                    <div class="loading" id="matcherLoading">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 0.5rem; color: var(--gray);">Finding relevant math concepts...</p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Curriculum Builder -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">📚</div>
+                    <h2 class="tool-title">Curriculum Builder</h2>
+                </div>
+                <form id="curriculumForm">
+                    <div class="form-group">
+                        <label class="form-label">Child's Age</label>
+                        <input type="number" class="form-input" id="childAge" 
+                               min="10" max="17" placeholder="e.g., 14">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Learning Goals</label>
+                        <textarea class="form-textarea" id="goals" 
+                                  placeholder="e.g., Prepare for algebra, understand financial math"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Child's Interests</label>
+                        <input type="text" class="form-input" id="interests" 
+                               placeholder="e.g., Gaming, sports, music">
+                    </div>
+                    <button type="submit" class="generate-btn">
+                        Build Curriculum 📖
+                    </button>
+                    <div class="loading" id="curriculumLoading">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 0.5rem; color: var(--gray);">Creating personalized curriculum...</p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bulk Generator -->
+            <div class="tool-card">
+                <div class="tool-header">
+                    <div class="tool-icon">🏗️</div>
+                    <h2 class="tool-title">Bulk Generator</h2>
+                </div>
+                <p style="color: var(--gray); margin-bottom: 1rem;">
+                    Generate multiple challenges at once to populate your curriculum quickly.
+                </p>
+                <button class="generate-btn" onclick="generateBulkContent()">
+                    Generate 30 Starter Challenges 📦
+                </button>
+                <div class="loading" id="bulkLoading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 0.5rem; color: var(--gray);">
+                        Generating challenges... This may take a minute.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <h2 style="margin-bottom: 1.5rem;">Generated Content</h2>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration - REPLACE WITH YOUR CONFIG
+        const firebaseConfig = {
+            apiKey: "YOUR-API-KEY",
+            authDomain: "YOUR-AUTH-DOMAIN",
+            projectId: "YOUR-PROJECT-ID",
+            storageBucket: "YOUR-STORAGE-BUCKET",
+            messagingSenderId: "YOUR-SENDER-ID",
+            appId: "YOUR-APP-ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Your Firebase Functions URL (replace with your actual URL)
+        const FUNCTIONS_URL = 'https://us-central1-mathit-app.cloudfunctions.net';
+
+        // Quick Challenge Generator
+        document.getElementById('quickChallengeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const topic = document.getElementById('topic').value;
+            const context = document.getElementById('context').value;
+            const difficulty = document.getElementById('difficulty').value;
+            
+            // Show loading
+            document.getElementById('quickLoading').classList.add('active');
+            e.target.querySelector('.generate-btn').disabled = true;
+            
+            try {
+                const response = await fetch(`${FUNCTIONS_URL}/generateChallenge`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        topic,
+                        realWorldContext: context,
+                        difficulty,
+                        ageGroup: difficulty === 'easy' ? '10-12' : 
+                                 difficulty === 'medium' ? '12-14' : '14-17',
+                        educatorId: auth.currentUser?.uid || 'demo'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayGeneratedChallenge(result.challenge);
+                    updateStats();
+                } else {
+                    alert('Error generating challenge: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate challenge. Please try again.');
+            } finally {
+                document.getElementById('quickLoading').classList.remove('active');
+                e.target.querySelector('.generate-btn').disabled = false;
+            }
+        });
+
+        // Display Generated Challenge
+        function displayGeneratedChallenge(challenge) {
+            document.getElementById('resultsSection').classList.add('active');
+            
+            const html = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <h3 class="result-title">${challenge.title}</h3>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="saveChallenge('${challenge.id}')">
+                                💾 Save
+                            </button>
+                            <button class="action-btn" onclick="editChallenge('${challenge.id}')">
+                                ✏️ Edit
+                            </button>
+                            <button class="action-btn" onclick="publishChallenge('${challenge.id}')">
+                                🚀 Publish
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p style="margin-bottom: 1rem; color: var(--gray);">
+                        ${challenge.description}
+                    </p>
+                    
+                    <div style="background: var(--light); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                        <strong>Problem:</strong><br>
+                        ${challenge.problem}
+                    </div>
+                    
+                    <h4 style="margin-bottom: 0.5rem;">Steps:</h4>
+                    ${challenge.steps.map(step => `
+                        <div class="step-item">
+                            <span class="step-number">${step.stepNumber}</span>
+                            <strong>${step.instruction}</strong><br>
+                            <small style="color: var(--gray);">Hint: ${step.hint}</small>
+                        </div>
+                    `).join('')}
+                    
+                    <div class="tags">
+                        ${challenge.concepts.map(concept => 
+                            `<span class="tag">${concept}</span>`
+                        ).join('')}
+                    </div>
+                    
+                    <p style="margin-top: 1rem; color: var(--success); font-weight: 600;">
+                        ✨ Real-World Connection: ${challenge.realWorldConnection}
+                    </p>
+                </div>
+            `;
+            
+            document.getElementById('resultsContainer').innerHTML = html;
+        }
+
+        // Update Stats
+        function updateStats() {
+            // Get from localStorage or initialize
+            let stats = JSON.parse(localStorage.getItem('mathitStats') || '{}');
+            stats.challengesGenerated = (stats.challengesGenerated || 0) + 1;
+            stats.timeSaved = (stats.timeSaved || 0) + 0.5; // Each challenge saves ~30 mins
+            
+            localStorage.setItem('mathitStats', JSON.stringify(stats));
+            
+            document.getElementById('challengesGenerated').textContent = stats.challengesGenerated;
+            document.getElementById('timeSaved').textContent = stats.timeSaved.toFixed(1) + 'h';
+        }
+
+        // Initialize stats on load
+        window.addEventListener('load', () => {
+            const stats = JSON.parse(localStorage.getItem('mathitStats') || '{}');
+            document.getElementById('challengesGenerated').textContent = stats.challengesGenerated || 0;
+            document.getElementById('timeSaved').textContent = (stats.timeSaved || 0).toFixed(1) + 'h';
+        });
+
+        // Placeholder functions
+        function saveChallenge(id) {
+            alert('Challenge saved to your library!');
+        }
+
+        function editChallenge(id) {
+            alert('Opening editor...');
+        }
+
+        function publishChallenge(id) {
+            alert('Challenge published! Students can now access it.');
+        }
+
+        function generateBulkContent() {
+            if (confirm('This will generate 30 challenges and use approximately $0.50 in AI credits. Continue?')) {
+                document.getElementById('bulkLoading').classList.add('active');
+                // Call bulk generation function
+                alert('Bulk generation started. This will take 1-2 minutes.');
+            }
+        }
+    </script>
+</body>
+</html>
